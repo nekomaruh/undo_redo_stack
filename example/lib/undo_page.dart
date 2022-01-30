@@ -59,5 +59,5 @@ class _ExamplePageState extends State<ExamplePage> {
   }
 
   // Delete Item to List (not redo-able)
-  void _deleteItem() => setState(() => stack.pop());
+  void _deleteItem() => setState(() => stack.pop(forever: true));
 }
