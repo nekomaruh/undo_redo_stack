@@ -45,20 +45,10 @@ import 'package:undo_redo_stack/undo_redo_stack.dart';
 Flutter Example:
 
 ```dart
-import 'package:example/package/undo_redo_stack.dart';
-import 'package:flutter/material.dart';
-
-class ExamplePage extends StatefulWidget {
-  static const route = '/example_page';
-  const ExamplePage({Key? key}) : super(key: key);
-
-  @override
-  State<ExamplePage> createState() => _ExamplePageState();
-}
-
 class _ExamplePageState extends State<ExamplePage> {
   final stack = UndoRedoStack<Widget>();
   final whiteText = const TextStyle(color: Colors.white);
+  int itemCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +78,7 @@ class _ExamplePageState extends State<ExamplePage> {
             ),
             MaterialButton(
                 onPressed: _deleteItem,
-                child: Text('Delete', style: whiteText),
+                child: Text('Delete Forever', style: whiteText),
                 color: Colors.red)
           ],
         ));
@@ -101,7 +91,7 @@ class _ExamplePageState extends State<ExamplePage> {
 
   // Add Item to List
   void _addItem() {
-    final item = Text('New Item #${stack.list.length + 1}');
+    final item = Text('New Item #${++itemCount}');
     setState(() => stack.push(item));
   }
 

@@ -12,6 +12,7 @@ class ExamplePage extends StatefulWidget {
 class _ExamplePageState extends State<ExamplePage> {
   final stack = UndoRedoStack<Widget>();
   final whiteText = const TextStyle(color: Colors.white);
+  int itemCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,7 @@ class _ExamplePageState extends State<ExamplePage> {
             ),
             MaterialButton(
                 onPressed: _deleteItem,
-                child: Text('Delete', style: whiteText),
+                child: Text('Delete Forever', style: whiteText),
                 color: Colors.red)
           ],
         ));
@@ -54,7 +55,7 @@ class _ExamplePageState extends State<ExamplePage> {
 
   // Add Item to List
   void _addItem() {
-    final item = Text('New Item #${stack.list.length + 1}');
+    final item = Text('New Item #${++itemCount}');
     setState(() => stack.push(item));
   }
 
