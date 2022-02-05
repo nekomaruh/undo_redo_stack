@@ -1,61 +1,65 @@
 import 'dart:collection';
 
 class UndoRedoStack<T> {
+  final _mainStack = Queue<T>();
   final _undoStack = Queue<T>();
-  final _redoStack = Queue<T>();
+
+  get canUndo => _mainStack.isNotEmpty;
+  get canRedo => _undoStack.isNotEmpty;
 
   void push(T element) {
-    _undoStack.addLast(element);
+    _mainStack.addLast(element);
   }
 
-  T? pop({bool forever = false}) {
-    if (_undoStack.isNotEmpty) {
-      T popElement = _undoStack.last;
-      _undoStack.removeLast();
-      if (forever == false) _redoStack.add(popElement);
+  void pushList(List<T> list) {
+    for (var element in list) {
+      _mainStack.addLast(element);
+    }
+  }
+
+  T? pop() {
+    if (_mainStack.isNotEmpty) {
+      T popElement = _mainStack.last;
+      _mainStack.removeLast();
       return popElement;
     }
     return null;
   }
 
   void undo() {
-    if (_redoStack.isNotEmpty) {
-      T redoElement = _redoStack.last;
-      _redoStack.removeLast();
-      _undoStack.addLast(redoElement);
+    if (_mainStack.isNotEmpty) {
+      T undoElement = _mainStack.last;
+      _mainStack.removeLast();
+      _undoStack.add(undoElement);
     }
   }
 
   void redo() {
     if (_undoStack.isNotEmpty) {
-      T undoElement = _undoStack.last;
+      T redoElement = _undoStack.last;
       _undoStack.removeLast();
-      _redoStack.add(undoElement);
+      _mainStack.addLast(redoElement);
     }
   }
 
-  get list => _undoStack.toList();
+  get list => _mainStack.toList();
 
-  get undoList => _redoStack.toList();
+  get undoList => _undoStack.toList();
 
   void clear() {
-    _redoStack.clear();
     _undoStack.clear();
+    _mainStack.clear();
   }
 
   void undoAll() {
-    if (_redoStack.isNotEmpty) {
-      for (int i = 0; i <= _redoStack.length; i++) {
-        undo();
-      }
+    for (int i = 0; i <= _undoStack.length; i++) {
+      undo();
     }
   }
 
   void redoAll() {
-    if (_undoStack.isNotEmpty) {
-      for (int i = 0; i <= _undoStack.length; i++) {
-        redo();
-      }
+    for (int i = 0; i <= _mainStack.length; i++) {
+      redo();
     }
   }
 }

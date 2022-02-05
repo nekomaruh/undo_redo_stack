@@ -21,9 +21,10 @@ class _ExamplePageState extends State<ExamplePage> {
           title: const Text('Undo Redo List'),
           actions: [
             IconButton(
-                onPressed: _onUndoPressed, icon: const Icon(Icons.arrow_back)),
+                onPressed: stack.canUndo ? _onUndoPressed : null,
+                icon: const Icon(Icons.arrow_back)),
             IconButton(
-                onPressed: _onRedoPressed,
+                onPressed: stack.canRedo ? _onRedoPressed : null,
                 icon: const Icon(Icons.arrow_forward)),
             IconButton(
                 onPressed: _onClearPressed, icon: const Icon(Icons.delete)),
@@ -51,7 +52,10 @@ class _ExamplePageState extends State<ExamplePage> {
   // UndoRedoStack Updates
   void _onUndoPressed() => setState(() => stack.undo());
   void _onRedoPressed() => setState(() => stack.redo());
-  void _onClearPressed() => setState(() => stack.clear());
+  void _onClearPressed() => setState(() {
+        stack.clear();
+        itemCount = 0;
+      });
 
   // Add Item to List
   void _addItem() {
@@ -60,5 +64,5 @@ class _ExamplePageState extends State<ExamplePage> {
   }
 
   // Delete Item to List (not redo-able)
-  void _deleteItem() => setState(() => stack.pop(forever: true));
+  void _deleteItem() => setState(() => stack.pop());
 }

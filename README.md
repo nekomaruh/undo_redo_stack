@@ -26,10 +26,10 @@ stack.undo() // Undo Changes
 stack.redo() // Redo Changes
 stack.clear() // Deletes all data from stack
 stack.push(dynamic) // Add data to stack
-stack.pop() // Deletes data from stack and return? the value
-stack.pop(forever: true) // Same as above, but this is not redo-able
-stack.list // Returns list of values in stack
-stack.undoList // Returns list of possible undo values
+stack.pushList(List<dynamic>) // Add list of data to stack
+stack.pop() // Delete data from stack and return? the value
+stack.list // Return list of values in stack
+stack.undoList // Return list of possible redo values
 ```
 
 ## Getting started
@@ -57,9 +57,10 @@ class _ExamplePageState extends State<ExamplePage> {
           title: const Text('Undo Redo List'),
           actions: [
             IconButton(
-                onPressed: _onUndoPressed, icon: const Icon(Icons.arrow_back)),
+                onPressed: stack.canUndo ? _onUndoPressed : null,
+                icon: const Icon(Icons.arrow_back)),
             IconButton(
-                onPressed: _onRedoPressed,
+                onPressed: stack.canRedo ? _onRedoPressed : null,
                 icon: const Icon(Icons.arrow_forward)),
             IconButton(
                 onPressed: _onClearPressed, icon: const Icon(Icons.delete)),
@@ -87,7 +88,10 @@ class _ExamplePageState extends State<ExamplePage> {
   // UndoRedoStack Updates
   void _onUndoPressed() => setState(() => stack.undo());
   void _onRedoPressed() => setState(() => stack.redo());
-  void _onClearPressed() => setState(() => stack.clear());
+  void _onClearPressed() => setState(() {
+        stack.clear();
+        itemCount = 0;
+      });
 
   // Add Item to List
   void _addItem() {
@@ -96,7 +100,7 @@ class _ExamplePageState extends State<ExamplePage> {
   }
 
   // Delete Item to List (not redo-able)
-  void _deleteItem() => setState(() => stack.pop(forever: true));
+  void _deleteItem() => setState(() => stack.pop());
 }
 ```
 
@@ -105,14 +109,8 @@ Dart Example:
 ```dart
 void main() {
   test('Undo Redo Stack Task Executed', () {
-    final stack = UndoRedoStack<int>()
-      ..push(3)
-      ..push(2)
-      ..push(10)
-      ..push(9)
-      ..push(5)
-      ..push(7)
-      ..push(6);
+    final List<int> list = [3, 2, 10, 9, 5, 7, 6];
+    final stack = UndoRedoStack<int>()..pushList(list);
 
     print('Stack: ${stack.list}');
 
@@ -121,8 +119,7 @@ void main() {
       ..pop()
       ..pop();
 
-    print('Deleted values: ${stack.undoList}');
-    print('Stack: ${stack.list}');
+    print('Stack with 3 pops: ${stack.list}');
 
     stack
       ..undo()
@@ -136,11 +133,6 @@ void main() {
       ..redo();
 
     print('Stack with 2 redos: ${stack.list}');
-
-    int? value = stack.pop(forever: true);
-
-    print('Value deleted forever: $value');
-    print('Stack: ${stack.list}');
 
     stack.undoAll();
 
@@ -159,14 +151,12 @@ void main() {
 
 Dart Example Result:
 ```dart
-Deleted values: [6, 7, 5]
-Stack: [3, 2, 10, 9]
-Stack with 3 undos: [3, 2, 10, 9, 5, 7, 6]
-Stack with 2 redos: [3, 2, 10, 9, 5]
-Value deleted forever: 5
-Stack: [3, 2, 10, 9]
-Stack with full undo: [3, 2, 10, 9, 7, 6]
-Stack with full redo: [3, 2]
+Stack: [3, 2, 10, 9, 5, 7, 6]
+Stack with 3 pops: [3, 2, 10, 9]
+Stack with 3 undos: [3]
+Stack with 2 redos: [3, 2, 10]
+Stack with full undo: []
+Stack with full redo: [3, 2, 10, 9]
 Stack deleted forever: []
 ✓ Undo Redo Stack Task Executed
 ```
